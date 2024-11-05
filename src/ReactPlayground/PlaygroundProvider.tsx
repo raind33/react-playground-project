@@ -1,12 +1,21 @@
-import { PropsWithChildren, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import { Files, PlaygroundContext, Theme } from "./PlaygroundContext";
-import { fileName2Language } from "./util";
+import { compress, fileName2Language, uncompress } from "./util";
 import { initFiles } from "./files";
 
 export const PlaygroundProvider = (props: PropsWithChildren) => {
   const { children } = props
-  console.log(initFiles, 6666);
-  const [files, setFiles] = useState<Files>(initFiles)
+  const getFilesFromUrl = () => {
+    let files: Files | undefined
+    try {
+        const hash = uncompress(window.location.hash.slice(1))
+        files = JSON.parse(hash)
+    } catch (error) {
+      console.error(error)
+    }
+    return files
+  }
+  const [files, setFiles] = useState<Files>(getFilesFromUrl() || initFiles)
   const [selectedFileName, setSelectedFileName] = useState('App.tsx');
   const [theme, setTheme] = useState<Theme>('dark');
 
@@ -23,7 +32,10 @@ export const PlaygroundProvider = (props: PropsWithChildren) => {
     delete files[name]
     setFiles({ ...files })
   }
-
+  useEffect(() => {
+    const hash = compress(JSON.stringify(files))
+    window.location.hash = hash
+}, [files])
   const updateFileName = (oldFieldName: string, newFieldName: string) => {
     if (!files[oldFieldName] || newFieldName === undefined || newFieldName === null) return
     const { [oldFieldName]: value, ...rest } = files

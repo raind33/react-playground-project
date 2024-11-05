@@ -10,6 +10,7 @@ export default function CodeEditor() {
       files, 
       setFiles, 
       selectedFileName, 
+      theme,
       setSelectedFileName
   } = useContext(PlaygroundContext)
   
@@ -22,7 +23,9 @@ export default function CodeEditor() {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <FileNameList/>
-            <Editor file={file} onChange={debounce(onEditorChange)}/>
+            <Editor file={file} onChange={debounce(onEditorChange)} options={{
+                theme: theme === 'dark' ? 'vs-dark' : 'vs-light',
+            }}/>
         </div>
     ) 
 }
